@@ -63,75 +63,65 @@ def win(player, color):
     else:
         quit()
 
-# def checkForWinner(grid, x, y, player, color):
-#     # checks verticals
-#     temp = ""
-#     for char in range(NUM_OF_ROWS):
-#         temp += grid[char][x]
-#     if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-#         for char in range(NUM_OF_ROWS):
-#             if grid[char][x] == colored('O', color, attrs = ["dark"]):
-#                 grid[char][x] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-#         return True
-
-#     # checks horizontals
-#     temp = ""
-#     for char in range(NUM_OF_COLUMNS):
-#         temp += grid[y][char]
-#     if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-#         for char in range(NUM_OF_COLUMNS):
-#             if grid[y][char] == colored('O', color, attrs = ["dark"]):
-#                 grid[y][char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-#         return True
-
-#     # checks right diagonals
-#     temp = ""
-#     startingPoint = min(x, y)
-#     for char in range(, NUM_OF_COLUMNS):
-#         if char == 
-#         temp += grid[(y - startingPoint) + char][(x - startingPoint) + char]
-#     if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-#         for char in range(, NUM_OF_COLUMNS):
-#             if grid[(y - startingPoint) + char][(x - startingPoint) + char] == colored('O', color, attrs = ["dark"]):
-#                 grid[(y - startingPoint) + char][(x - startingPoint) + char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-#         return True
-
-
-#     # checks left diagonals
-#     # temp = ""
-#     # for spot in range(NUM_OF_COLUMNS):
-#     #     temp += grid[y][spot]
-#     # if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-#     #     for char in range(NUM_OF_COLUMNS):
-#     #         if grid[y][char] == colored('O', color, attrs = ["dark"]):
-#     #             grid[y][char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-#     #     return True
-
-#     #checks for cat game
-#     for spot in range(NUM_OF_COLUMNS):
-#         if grid[0][spot] == EMPTY:
-#             return False
-#     return True
-
 def checkForWinner(grid, x, y, player, color):
-    item = grid[y][x]
-    for delta_row, delta_col in [(1, 0), (0, 1), (1, 1), (1, -1)]:
-        consecutive_items = 1
-        for delta in (1, -1):
-            delta_row *= delta
-            delta_col *= delta
-            next_row = x + delta_row
-            next_col = y + delta_col
-            while (0 <= next_row < NUM_OF_ROWS) and (0 <= next_col < NUM_OF_COLUMNS):
-                if grid[next_row][next_col] == colored('O', color, attrs = ["dark"]):
-                    consecutive_items += 1
-                else:
-                    break
-                if consecutive_items == 4:
-                    return True
-                next_row += delta_row
-                next_col += delta_col
-    return False
+    # # checks verticals
+    # temp = ""
+    # for char in range(NUM_OF_ROWS):
+    #     temp += grid[char][x]
+    # if temp.count(colored('O', color, attrs = ["dark"])) == 4:
+    #     for char in range(NUM_OF_ROWS):
+    #         if grid[char][x] == colored('O', color, attrs = ["dark"]):
+    #             grid[char][x] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+    #     return True
+
+    # checks verticals
+    temp = ""
+    for char in range(NUM_OF_ROWS):
+        temp += grid[char][x]
+    if temp.count(colored('O', color, attrs = ["dark"])) == 4:
+        for char in range(NUM_OF_ROWS):
+            if grid[char][x] == colored('O', color, attrs = ["dark"]):
+                grid[char][x] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+        return True
+
+    # checks horizontals
+    temp = ""
+    for char in range(NUM_OF_COLUMNS):
+        temp += grid[y][char]
+    if temp.count(colored('O', color, attrs = ["dark"])) == 4:
+        for char in range(NUM_OF_COLUMNS):
+            if grid[y][char] == colored('O', color, attrs = ["dark"]):
+                grid[y][char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+        return True
+
+    # checks diagonals going up and right
+    temp = ""
+    startingPoint = min(x, y)
+    for char in range(, NUM_OF_COLUMNS):
+        if char == 
+        temp += grid[(y - startingPoint) + char][(x - startingPoint) + char]
+    if temp.count(colored('O', color, attrs = ["dark"])) == 4:
+        for char in range(, NUM_OF_COLUMNS):
+            if grid[(y - startingPoint) + char][(x - startingPoint) + char] == colored('O', color, attrs = ["dark"]):
+                grid[(y - startingPoint) + char][(x - startingPoint) + char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+        return True
+
+
+    # checks diagonals going down and left
+    # temp = ""
+    # for spot in range(NUM_OF_COLUMNS):
+    #     temp += grid[y][spot]
+    # if temp.count(colored('O', color, attrs = ["dark"])) == 4:
+    #     for char in range(NUM_OF_COLUMNS):
+    #         if grid[y][char] == colored('O', color, attrs = ["dark"]):
+    #             grid[y][char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+    #     return True
+
+    #checks for cat game
+    for spot in range(NUM_OF_COLUMNS):
+        if grid[0][spot] == EMPTY:
+            return False
+    return True
         
 def playerMove(grid, playerList):
     userMove = int(input("{}, place your chip in a column. Enter '0' to quit the game: ".format(playerList[0][0])))
