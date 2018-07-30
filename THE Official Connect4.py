@@ -3,10 +3,10 @@ import sys
 
 global PLAYER_ONE_COLOR, PLAYER_TWO_COLOR, MAIN_COLOR
 global EMPTY
-global NUM_OF_ROWS, NUM_OF_COLUMNS
+global NUM_OF_ROWS, NUM_OF_COLUMNS, NUM_IN_A_ROW
 PLAYER_ONE_COLOR, PLAYER_TWO_COLOR, MAIN_COLOR = "red", "yellow", "white"
 EMPTY = ' '
-NUM_OF_ROWS, NUM_OF_COLUMNS = 6, 7
+NUM_OF_ROWS, NUM_OF_COLUMNS, NUM_IN_A_ROW = 6, 7, 4
 
 def clear():
     sys.stderr.write("\x1b[2J\x1b[H")
@@ -64,54 +64,52 @@ def win(player, color):
         quit()
 
 def checkForWinner(grid, x, y, player, color):
-    # # checks verticals
+    # checks vertical
+    count, startingPoint = 0, 0
+    found = False
+    for char in range(NUM_OF_ROWS):
+        if grid[char][x] == colored('O', color, attrs = ["dark"]):
+            count += 1
+            if count == NUM_IN_A_ROW:
+                for newChar in range(startingPoint, char + 1):
+                    grid[newChar][x] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+                return True
+        else:
+            startingPoint = char + 1
+            count = 0
+
+    # checks horizontal
+    count, startingPoint = 0, 0
+    found = False
+    for char in range(NUM_OF_COLUMNS):
+        if grid[y][char] == colored('O', color, attrs = ["dark"]):
+            count += 1
+            if count == NUM_IN_A_ROW:
+                for newChar in range(startingPoint, char + 1):
+                    grid[y][newChar] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+                return True
+        else:
+            startingPoint = char + 1
+            count = 0
+
+    # checks diagonal going up and right
     # temp = ""
-    # for char in range(NUM_OF_ROWS):
-    #     temp += grid[char][x]
-    # if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-    #     for char in range(NUM_OF_ROWS):
-    #         if grid[char][x] == colored('O', color, attrs = ["dark"]):
-    #             grid[char][x] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+    # startingPoint = min(x, y)
+    # endingP
+    # for char in range(0, NUM_OF_COLUMNS):
+    #     temp += grid[(y - startingPoint) + char][(x - startingPoint) + char]
+    # if temp.count(colored('O', color, attrs = ["dark"])) == NUM_IN_A_ROW:
+    #     for char in range(, NUM_OF_COLUMNS):
+    #         if grid[(y - startingPoint) + char][(x - startingPoint) + char] == colored('O', color, attrs = ["dark"]):
+    #             grid[(y - startingPoint) + char][(x - startingPoint) + char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
     #     return True
 
-    # checks verticals
-    temp = ""
-    for char in range(NUM_OF_ROWS):
-        temp += grid[char][x]
-    if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-        for char in range(NUM_OF_ROWS):
-            if grid[char][x] == colored('O', color, attrs = ["dark"]):
-                grid[char][x] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-        return True
 
-    # checks horizontals
-    temp = ""
-    for char in range(NUM_OF_COLUMNS):
-        temp += grid[y][char]
-    if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-        for char in range(NUM_OF_COLUMNS):
-            if grid[y][char] == colored('O', color, attrs = ["dark"]):
-                grid[y][char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-        return True
-
-    # checks diagonals going up and right
-    temp = ""
-    startingPoint = min(x, y)
-    for char in range(, NUM_OF_COLUMNS):
-        if char == 
-        temp += grid[(y - startingPoint) + char][(x - startingPoint) + char]
-    if temp.count(colored('O', color, attrs = ["dark"])) == 4:
-        for char in range(, NUM_OF_COLUMNS):
-            if grid[(y - startingPoint) + char][(x - startingPoint) + char] == colored('O', color, attrs = ["dark"]):
-                grid[(y - startingPoint) + char][(x - startingPoint) + char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-        return True
-
-
-    # checks diagonals going down and left
+    # checks diagonal going down and left
     # temp = ""
     # for spot in range(NUM_OF_COLUMNS):
     #     temp += grid[y][spot]
-    # if temp.count(colored('O', color, attrs = ["dark"])) == 4:
+    # if temp.count(colored('O', color, attrs = ["dark"])) == NUM_IN_A_ROW:
     #     for char in range(NUM_OF_COLUMNS):
     #         if grid[y][char] == colored('O', color, attrs = ["dark"]):
     #             grid[y][char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
@@ -153,9 +151,9 @@ def main():
     winningPlayer = "No one"
     maxMoves, numOfMoves = (NUM_OF_ROWS * NUM_OF_COLUMNS), 0
     winner = False
+
     print("Welcome to connect 4!")
     choice = chooseMode()
-
     if choice == 1:
         for i in range(2):
             playerList[i][0] = input("Player {} enter a name: ".format(i + 1))
