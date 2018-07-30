@@ -3,10 +3,10 @@ import sys
 
 global PLAYER_ONE_COLOR, PLAYER_TWO_COLOR, MAIN_COLOR
 global EMPTY
-global NUM_OF_ROWS, NUM_OF_COLUMNS, NUM_IN_A_ROW
+global NUM_OF_ROWS, NUM_OF_COLUMNS, NUM_IN_A_ROW, NUM_OF_PLAYERS
 PLAYER_ONE_COLOR, PLAYER_TWO_COLOR, MAIN_COLOR = "red", "yellow", "white"
 EMPTY = ' '
-NUM_OF_ROWS, NUM_OF_COLUMNS, NUM_IN_A_ROW = 6, 7, 4
+NUM_OF_ROWS, NUM_OF_COLUMNS, NUM_IN_A_ROW, NUM_OF_PLAYERS = 6, 7, 4, 2
 
 def clear():
     sys.stderr.write("\x1b[2J\x1b[H")
@@ -23,14 +23,7 @@ def chooseMode():
     return 1
 
 def createGrid():
-    grid = []
-    NUM_OF_ROWS = int(input("Enter the amount of rows you want for the board(6-9): "))
-    NUM_OF_COLUMNS = int(input("Enter the amount of columns you want for the board(6-9): "))
-    for row in range(NUM_OF_ROWS):
-        grid.append([])
-        for column in range(NUM_OF_COLUMNS):
-            grid[row].append(EMPTY)
-    return grid
+    return [[EMPTY for column in range(NUM_OF_COLUMNS)] for row in range(NUM_OF_ROWS)]
 
 def displayGrid(grid, color):
     if color == MAIN_COLOR:
@@ -66,7 +59,6 @@ def win(player, color):
 def checkForWinner(grid, x, y, player, color):
     # checks vertical
     count, startingPoint = 0, 0
-    found = False
     for char in range(NUM_OF_ROWS):
         if grid[char][x] == colored('O', color, attrs = ["dark"]):
             count += 1
@@ -80,7 +72,6 @@ def checkForWinner(grid, x, y, player, color):
 
     # checks horizontal
     count, startingPoint = 0, 0
-    found = False
     for char in range(NUM_OF_COLUMNS):
         if grid[y][char] == colored('O', color, attrs = ["dark"]):
             count += 1
@@ -92,20 +83,31 @@ def checkForWinner(grid, x, y, player, color):
             startingPoint = char + 1
             count = 0
 
-    # checks diagonal going up and right
-    # temp = ""
-    # startingPoint = min(x, y)
-    # endingP
-    # for char in range(0, NUM_OF_COLUMNS):
-    #     temp += grid[(y - startingPoint) + char][(x - startingPoint) + char]
-    # if temp.count(colored('O', color, attrs = ["dark"])) == NUM_IN_A_ROW:
-    #     for char in range(, NUM_OF_COLUMNS):
-    #         if grid[(y - startingPoint) + char][(x - startingPoint) + char] == colored('O', color, attrs = ["dark"]):
-    #             grid[(y - startingPoint) + char][(x - startingPoint) + char] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
-    #     return True
+    # checks diagonal going down and right
+    count, smaller, highlightingStart = 0, min(x, y), 0
+    if smaller == y:
+        xStartingPoint = 0
+        yStartingPoint = abs(y - x)
+        startingPoint = yStartingPoint
+        endingPoint = NUM_OF_COLUMNS
+    else:
+        xStartingPoint = abs(y - x)
+        yStartingPoint = 0
+        startingPoint = xStartingPoint
+        endingPoint = NUM_OF_ROWS
 
+    for char in range(endingPoint - startingPoint):
+        if grid[xStartingPoint + char][yStartingPoint + char] == colored('O', color, attrs = ["dark"]):
+            count += 1
+            if count == NUM_IN_A_ROW:
+                for newChar in range(highlightingStart, char + 1):
+                    grid[xStartingPoint + newChar][yStartingPoint + newChar] = colored('O', color, "on_cyan", attrs = ["blink", "bold"])
+                return True
+        else:
+            highlightingStart = char + 1
+            count = 0
 
-    # checks diagonal going down and left
+    # # checks diagonal going down and left
     # temp = ""
     # for spot in range(NUM_OF_COLUMNS):
     #     temp += grid[y][spot]
@@ -155,7 +157,7 @@ def main():
     print("Welcome to connect 4!")
     choice = chooseMode()
     if choice == 1:
-        for i in range(2):
+        for i in range(NUM_OF_PLAYERS):
             playerList[i][0] = input("Player {} enter a name: ".format(i + 1))
         grid = createGrid()
         print("\nGame in progress! Good luck, may the odds be with you both!\n")
