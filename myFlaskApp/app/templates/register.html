@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block body %}
+{% block content %}
 <div class="content-section">
   <form action="" class="form-group col-xs-3" method="POST">
     {{ form.hidden_tag() }}
@@ -62,10 +62,9 @@
     <div class="form-group">
       {{ form.submit(class="btn btn-primary btn-sm") }}
     </div>
-    <div>
     <small class="text-muted">
-      Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">SignIn</a>
+      Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
     </small>
   </form>
 </div>
-{% endblock %}
+{% endblock content %}

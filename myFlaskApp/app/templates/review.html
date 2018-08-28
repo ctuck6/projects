@@ -1,5 +1,14 @@
 {% extends "layout.html" %}
 
-{% block body %}
-	<h1>{{id}}</h1>
-{% endblock %}
+{% block content %}
+	<article class="media content-section">
+	  <div class="media-body">
+	    <div class="article-metadata">
+	      <a class="mr-2" href="{{ url_for('account') }}">{{ review.author }}</a>
+	      <small class="text-muted">{{ review.createDate }}</small>
+	    </div>
+	    <h2 class="article-title">{{ review.title }}</h2>
+	    <p class="article-content">{{ review.body }}</p>
+	  </div>
+	</article>
+{% endblock content %}

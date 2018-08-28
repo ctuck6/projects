@@ -1,10 +1,13 @@
 {% extends "layout.html" %}
 
-{% block body %}
-	<h1>Reviews</h1>
+{% block content %}
+  <h1>Reviews</h1>
+  <form method="post">
 	<ul class="list-group">
-	{% for review in reviews %}
-		<li class="list-group-item"><a href="review/{{review.id}}">{{review.title}}</a></li>
-	{% endfor %}
+	  {% for review in reviews %}
+		<li class="list-group-item"><a href="{{ url_for('review', review = review) }}">{{review.title}}</a></li>
+	  {% endfor %}
 	</ul>
-{% endblock %}
+  </form><br>
+  <a href="{{ url_for('new_review') }}"><button class="btn btn-info btn-sm"><span class="fa fa-edit"></span> Add Review</button></a>
+{% endblock content %}
