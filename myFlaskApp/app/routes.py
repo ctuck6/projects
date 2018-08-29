@@ -1,11 +1,10 @@
-from flask import render_template, flash, request, url_for, redirect
+from flask import render_template, flash, request, url_for, redirect, abort
 from app import app, db, bcrypt
 from app.database import User, Review
 from app.createdFunctions import id_generator, savePicture
 from app.forms import RegistrationForm, LoginForm, UpdateAccountForm, ReviewForm
 from flask_login import login_user, logout_user, current_user, login_required
-import os, random, ast
-from PIL import Image
+import ast
 
 @app.route('/')
 @app.route("/home")
@@ -18,14 +17,43 @@ def about():
 
 @app.route("/reviews", methods = ["GET", "POST"])
 def reviews():
-	reviews = Review.query.all()
-	return render_template("reviews.html", title = "Reviews", reviews = reviews)
+	page = request.args.get("page", 1, type=int)
+	reviews = Review.query.order_by(Review.date_posted.desc()).paginate(page = page, per_page = 5)
+	return render_template("reviews.html", reviews = reviews)
 
-@app.route("/review/<title>")
-@app.route("/review/<review>", methods = ["GET", "POST"])
-def review(review):
-	review = ast.literal_eval(review)
+@app.route("/review/<int:review_id>")
+def review(review_id):
+	review = Review.query.get_or_404(review_id)
 	return render_template("review.html", review = review)
+
+@app.route("/review/<int:review_id>/update",  methods = ["GET", "POST"])
+@login_required
+def update_review(review_id):
+	review = Review.query.get_or_404(review_id)
+	if review.author != current_user:
+		abort(403)
+	form = ReviewForm()
+	if form.validate_on_submit():
+		review.title = form.title.data
+		review.body = form.body.data
+		db.session.commit()
+		flash("Your post has been updated!", "success")
+		return redirect(url_for("review", review_id = review.id))
+	elif request.method == "GET":
+		form.title.data = review.title
+		form.body.data = review.body
+	return render_template("create_review.html", legend = "Update Review", form = form)
+
+@app.route("/review/<int:review_id>/delete",  methods = ["POST"])
+@login_required
+def delete_review(review_id):
+	review = Review.query.get_or_404(review_id)
+	if review.author != current_user:
+		abort(403)
+	db.session.delete(review)
+	db.session.commit()
+	flash("Your post has been deleted!", "success")
+	return redirect(url_for("reviews"))
 
 @app.route("/review/new", methods = ["GET", "POST"])
 @login_required
@@ -37,7 +65,7 @@ def new_review():
 		db.session.commit()
 		flash("Your review has been posted!", "success")
 		return redirect(url_for("reviews"))
-	return render_template("create_review.html", title = "New Review", form = form)
+	return render_template("create_review.html", legend = "New Review", form = form)
 
 @app.route("/register", methods = ["GET", "POST"])
 def register():
@@ -58,7 +86,7 @@ def register():
 			db.session.commit()
 			flash("Your account has been created! Please sign in!", "success")
 			return redirect(url_for("login"))
-	return render_template("register.html", title = "Register", form = form)
+	return render_template("register.html", form = form)
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -75,7 +103,7 @@ def login():
 		 	login_user(userEmail, remember = form.remember.data)
 		 	next_page = request.args.get('next')
 			return redirect(next_page) if next_page else redirect(url_for("home"))
-	return render_template("login.html", title = "Login", form = form)
+	return render_template("login.html", form = form)
 
 @app.route("/logout")
 def logout():
@@ -85,8 +113,7 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-	image_file = url_for("static", filename = 'profilePics/' + current_user.image_file)
-	return render_template("account.html", title = "Account", image_file = image_file)
+	return render_template("account.html")
 
 @app.route("/edit_account", methods = ["GET", "POST"])
 @login_required
@@ -104,5 +131,16 @@ def edit_account():
 	elif request.method == "GET":
 		form.username.data = current_user.username
 		form.email.data = current_user.email
-	image_file = url_for("static", filename = 'profilePics/' + current_user.image_file)
-	return render_template("edit_account.html", title = "Edit Account", image_file = image_file, form = form)
+	return render_template("edit_account.html", form = form)
+
+@app.route("/user/<string:username>")
+def user_reviews(username):
+	page = request.args.get("page", 1, type = int)
+	user = User.query.filter_by(username = username).first_or_404()
+	reviews = Review.query.filter_by(author = user).order_by(Review.date_posted.desc()).paginate(page = page, per_page = 5)
+	return render_template("user_reviews.html", reviews = reviews, user = user)
+
+@app.route("/latest_reviews", methods = ["GET", "POST"])
+def latest_reviews():
+	reviews = Review.query.order_by(Review.date_posted.desc()).paginate(page = 1, per_page = 10)
+	return render_template("latest_reviews.html", reviews = reviews)

@@ -50,3 +50,6 @@ class ReviewForm(FlaskForm):
 	title = StringField("Title", validators = [DataRequired()])
 	body = TextAreaField("Content", validators = [DataRequired()])
 	submit = SubmitField("Post Review")
+
+class RequestResetForm(FlaskForm):
+	

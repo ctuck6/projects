@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-  <h1>Reviews</h1><br>
+  <h1>Latest Reviews</h1><br>
 	<ul class="list-group">
 	  {% for review in reviews.items %}
 		<article class="media content-section">
@@ -17,17 +17,6 @@
           </div>
         </article>
 	  {% endfor %}
-	</ul>
-	{% for page_num in reviews.iter_pages(left_edge = 1, right_edge = 1, left_current = 1, right_current = 2) %}
-	  {% if page_num %}
-	    {% if reviews.page == page_num %}
-	      <a class="btn btn-info mb-4" href="{{ url_for('reviews', page = page_num) }}">{{ page_num }}</a>
-	    {% else %}
-	      <a class="btn btn-outline-info mb-4" href="{{ url_for('reviews', page = page_num) }}">{{ page_num }}</a>
-	    {% endif %}
-	  {% else %}
-	    ...
-	  {% endif %}
-	{% endfor %}<br>
+	</ul><br>
   <a href="{{ url_for('new_review') }}"><button class="btn btn-primary btn-sm"><span class="fa fa-edit"></span> Add Review</button></a>
 {% endblock content %}
