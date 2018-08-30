@@ -52,4 +52,16 @@ class ReviewForm(FlaskForm):
 	submit = SubmitField("Post Review")
 
 class RequestResetForm(FlaskForm):
-	
+	email = StringField("Email", validators = [DataRequired(), Email()])
+	submit = SubmitField("Request Password Reset")
+
+	def validate_email(self, email):
+		user = User.query.filter_by(email = email.data).first()
+		if not user:
+			raise ValidationError("Email does not exists. Please try again.")
+
+class ResetPasswordForm(FlaskForm):
+	password = PasswordField("Password", validators = [DataRequired()])
+	confirmPassword = PasswordField("Re-Enter Password", validators = [DataRequired(), EqualTo("password")])
+	submit = SubmitField("Reset Password")
+
