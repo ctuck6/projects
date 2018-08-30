@@ -3,22 +3,31 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
+from app.config import Config
 
-app = Flask(__name__)
-app.config["DEBUG"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///site.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = "361f657555c5599857b926161b13403a"
-app.config["MAIL_SERVER"] = "smtp.googlemail.com"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = "cameronrtucker21@gmail.com"
-app.config["MAIL_PASSWORD"] = "Waffles*11"
-mail = Mail(app)
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-loginManager = LoginManager(app)
-loginManager.login_view = "login"
+mail = Mail()
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+loginManager = LoginManager()
+loginManager.login_view = "users.login"
 loginManager.login_message_category = "danger"
 
-from app import routes
+def create_app(config_class = Config):
+	app = Flask(__name__)
+	app.config.from_object(Config)
+
+	mail.init_app(app)
+	db.init_app(app)
+	bcrypt.init_app(app)
+	loginManager.init_app(app)
+
+	from app.users.routes import users
+	from app.main.routes import main
+	from app.reviews.routes import reviews
+	from app.errors.handlers import errors
+	app.register_blueprint(users)
+	app.register_blueprint(main)
+	app.register_blueprint(reviews)
+	app.register_blueprint(errors)
+
+	return app
